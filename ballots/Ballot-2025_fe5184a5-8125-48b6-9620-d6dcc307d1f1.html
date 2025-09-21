@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>BSK Council Nominees - Voting</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            line-height: 1.6; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .nominee { 
+            background-color: #f9f9f9; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            border-left: 4px solid #0078d4; 
+        }
+        .member-number { 
+            color: #0078d4; 
+            font-weight: bold; 
+            font-size: 16px; 
+        }
+        .nominee-name { 
+            font-weight: bold; 
+            font-size: 16px; 
+            margin-bottom: 5px; 
+        }
+        .submit-btn { 
+            background-color: #0078d4; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin-top: 20px; 
+        }
+        .submit-btn:hover { 
+            background-color: #106ebe; 
+        }
+        /* modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%; max-width: 400px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>BSK Council Nominees - Voting</h1>
+    
+    <h2>Nominee Profiles:</h2>
+    <!-- Placeholder for dynamic nominee cards -->
+    <div class="nominee"><div class="member-number">BSKBAM0000004</div><div class="nominee-name">Bsk d365 Admin one</div><p class="small">Bsk d365 Admin one is a member of the Ridgeways Baptist Church where he serves on the deacon board. He is the head of the Bible Study program that he facilitates in the district. He is a financial consultant and lecturer in business strategy. His expertise is in Finance Management, Human Resource Management Strategy management, and leadership. He is gifted in evangelism, management, administration, and capacity building. He is a qualified accountant (CPAK), a member of the Institute of Certified Accountants of Kenya, and in good standing. He has served in the BSK Council. He is currently a member of the Finance and Administration committee. He lives in Nairobi.</p></div><div class="nominee"><div class="member-number">BSKBAM0000005</div><div class="nominee-name">Bsk d365 Admin three</div><p class="small">member of the Anglican Church of Kenya. She is a lawyer by profession and a certified professional mediator. She is an advocate and has talents in legal and networking skills. She has served as a BSK Council member. She is the current chairperson of the Programs and Business Development committee. She lives in Nairobi.</p></div>
+    
+    <h2>Cast Your Vote (Select exactly 2 different nominees):</h2>
+    <form id="voteForm" action="https://YOUR_POWER_AUTOMATE_FLOW_URL">
+        
+        <div style="margin: 20px 0;">
+            <label for="first_choice"><strong>First Choice:</strong></label>
+            <select name="first_choice" id="first_choice" required style="width: 100%; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">-- Select First Nominee --</option>
+                <option value="BSKBAM0000004">BSKBAM0000004 - Bsk d365 Admin one</option><option value="BSKBAM0000005">BSKBAM0000005 - Bsk d365 Admin three</option>
+            </select>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <label for="second_choice"><strong>Second Choice:</strong></label>
+            <select name="second_choice" id="second_choice" required style="width: 100%; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">-- Select Second Nominee --</option>
+                <option value="BSKBAM0000004">BSKBAM0000004 - Bsk d365 Admin one</option><option value="BSKBAM0000005">BSKBAM0000005 - Bsk d365 Admin three</option>
+            </select>
+        </div>
+
+        <!-- Hidden fields for uniqueness and flow -->
+        <input type="hidden" name="ballot_id" 
+               value="ef057d0d-1b76-4d9b-a3b8-fad050e4259f--BSKBAM0000005" />
+        <input type="hidden" name="submission_id" value="ef057d0d-1b76-4d9b-a3b8-fad050e4259f" />
+        <input type="hidden" name="member_number" 
+               value="BSKBAM0000005" />
+
+        <button type="submit" class="submit-btn">Submit Vote</button>
+    </form>
+
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h2>✅ Vote Submitted</h2>
+            <p>Your vote has been recorded successfully.</p>
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("voteForm");
+        const modal = document.getElementById("successModal");
+
+        form.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const first = document.getElementById("first_choice").value;
+            const second = document.getElementById("second_choice").value;
+            const ballotId = document.querySelector("[name=ballot_id]").value;
+
+            if (first === second) {
+                alert("You cannot select the same nominee twice.");
+                return;
+            }
+
+            // prevent duplicate votes per ballot ID in this browser
+            if (localStorage.getItem("vote_submitted_" + ballotId)) {
+                alert("You have already submitted your vote.");
+                return;
+            }
+
+            const payload = {
+                first_choice: first,
+                second_choice: second,
+                ballot_id: ballotId,
+                submission_id: document.querySelector("[name=submission_id]").value,
+                member_number: document.querySelector("[name=member_number]").value
+            };
+
+            try {
+                const res = await fetch(form.action, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    localStorage.setItem("vote_submitted_" + ballotId, "true");
+                    modal.style.display = "block";
+                } else {
+                    alert("Error submitting vote. Please try again later.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error: " + err.message);
+            }
+        });
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+    </script>
+</body>
+</html>
