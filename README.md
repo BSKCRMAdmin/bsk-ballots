@@ -1,2 +1,9 @@
-# bsk-ballots
-Static HTML ballots for BSK Council voting. Each file is a unique ballot for a voter with fully styled nominee profiles and voting form. Used with Power Automate for dynamic generation and submission.
+This repository hosts static HTML files for the BSK Council voting process.
+Each HTML file represents a unique ballot for a specific voter, containing:
+
+Nominee profiles with full bios and member numbers
+
+Styled dropdowns for selecting exactly two nominees
+
+A submit button that posts the vote to a Power Automate flow
+Files are generated dynamically via Power Automate and served via GitHub Pages for full JavaScript support without sandbox restrictions.
